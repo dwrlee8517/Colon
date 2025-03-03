@@ -16,22 +16,26 @@ set_random_seed(GLOBAL_SEED)
 
 # Create a composed transform that uses your custom transform and converts the image to a tensor.
 train_transform = T.Compose([
-    CustomTransform(pad_method="reflect", max_size=(1352,1080), target_size=(224,224), augment=True),
-    ToTensor()
+    CustomTransform(pad_method="zeros", max_size=(1352,1080), target_size=(224,224), augment=True),
+    ToTensor(),
+    #T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # ImageNet
+    T.Normalize(mean=[0.568, 0.329, 0.252], std=[0.264, 0.202, 0.161]) # train_dataset when random seed = 42
 ])
 
 test_transform = T.Compose([
-    CustomTransform(pad_method="reflect", max_size=(1352,1080), target_size=(224,224), augment=False),
-    ToTensor()
+    CustomTransform(pad_method="zeros", max_size=(1352,1080), target_size=(224,224), augment=False),
+    ToTensor(),
+    #T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    T.Normalize(mean=[0.568, 0.329, 0.252], std=[0.264, 0.202, 0.161])
 ])
 
 print("Creating Train Dataset")
 train_dataset = RealColonDataset(
     data_dir="/radraid/dongwoolee/real_colon_data",
     frames_csv="/radraid2/dongwoolee/Colon/data/frames_train.csv",
-    num_imgs=8000,
+    num_imgs=80000,
     pos_ratio=0.5,
-    min_skip_frames=10,
+    min_skip_frames=5,
     apply_skip=True,
     transform=train_transform
 )
@@ -41,16 +45,16 @@ print("Creating Test Datset")
 test_dataset = RealColonDataset(
     data_dir="/radraid/dongwoolee/real_colon_data",
     frames_csv="/radraid2/dongwoolee/Colon/data/frames_test.csv",
-    num_imgs=2000,
+    num_imgs=20000,
     pos_ratio=0.5,
-    min_skip_frames=10,
+    min_skip_frames=5,
     apply_skip=True,
     transform=test_transform
 )
 print("Done.")
 
-train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=4, pin_memory=True)
-test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False, num_workers=4, pin_memory=True)
+train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True, num_workers=8, pin_memory=True)
+test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False, num_workers=8, pin_memory=True)
 
 for images, labels in train_dataloader:
     print(images.shape, labels.shape)
@@ -110,12 +114,12 @@ model.to(device)
 
 ############# Training Parameters #####################
 learning_rate = 0.001
-epochs = 30
+epochs = 10
 loss_fn = BCEWithLogitsLoss()
 optimizer = AdamW(model.parameters(), lr=learning_rate)
 scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
-save_filepath = "/radraid2/dongwoolee/Colon/results/checkpoint.pth"
-save_plotpath = "/radraid2/dongwoolee/Colon/results/lossplot.png"
+save_filepath = f"/radraid2/dongwoolee/Colon/results/{model_name}.pth"
+save_plotpath = f"/radraid2/dongwoolee/Colon/results/{model_name}.png"
 
 ############ Train and save results ##################
 trainer = ColonTrainer(model, optimizer, scheduler, train_dataloader, test_dataloader, device, epochs, loss_fn)

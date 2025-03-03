@@ -1,2 +1,4 @@
 data/img*
 results/*.pth
+__pycache__/
+*.pyc

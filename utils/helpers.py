@@ -45,8 +45,8 @@ def choose_gpu_with_cuda_visible_devices():
         gpu_id = input("Enter the GPU id to use for training: ").strip()
         if gpu_id.isdigit():
             # Set the CUDA_VISIBLE_DEVICES environment variable.
-            os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
-            print(f"Set CUDA_VISIBLE_DEVICES to {gpu_id}")
+            torch.cuda.set_device(int(gpu_id))
+            print(f"Current device: {torch.cuda.current_device()}")
             return int(gpu_id)
         else:
             print("Invalid input. Please enter a numeric GPU ID.")

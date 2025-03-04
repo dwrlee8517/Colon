@@ -14,28 +14,38 @@ import gpustat
 GLOBAL_SEED = 42
 set_random_seed(GLOBAL_SEED)
 
+selected_gpu = choose_gpu_with_cuda_visible_devices()
+if selected_gpu is not None:
+    import torch
+    # After setting CUDA_VISIBLE_DEVICES, torch will only see the specified GPU.
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Training will run on device: {device}")
+    print("Visible CUDA devices count:", torch.cuda.device_count())
+else:
+    print("No GPU selected.")
+
 # Create a composed transform that uses your custom transform and converts the image to a tensor.
 train_transform = T.Compose([
     CustomTransform(pad_method="zeros", max_size=(1352,1080), target_size=(224,224), augment=True),
     ToTensor(),
-    #T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # ImageNet
-    T.Normalize(mean=[0.568, 0.329, 0.252], std=[0.264, 0.202, 0.161]) # train_dataset when random seed = 42
+    T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # ImageNet
+    #T.Normalize(mean=[0.568, 0.329, 0.252], std=[0.264, 0.202, 0.161]) # train_dataset when random seed = 42
 ])
 
 test_transform = T.Compose([
     CustomTransform(pad_method="zeros", max_size=(1352,1080), target_size=(224,224), augment=False),
     ToTensor(),
-    #T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    T.Normalize(mean=[0.568, 0.329, 0.252], std=[0.264, 0.202, 0.161])
+    T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    #T.Normalize(mean=[0.568, 0.329, 0.252], std=[0.264, 0.202, 0.161])
 ])
 
 print("Creating Train Dataset")
 train_dataset = RealColonDataset(
     data_dir="/radraid/dongwoolee/real_colon_data",
     frames_csv="/radraid2/dongwoolee/Colon/data/frames_train.csv",
-    num_imgs=80000,
+    num_imgs=20000,
     pos_ratio=0.5,
-    min_skip_frames=5,
+    min_skip_frames=10,
     apply_skip=True,
     transform=train_transform
 )
@@ -45,9 +55,9 @@ print("Creating Test Datset")
 test_dataset = RealColonDataset(
     data_dir="/radraid/dongwoolee/real_colon_data",
     frames_csv="/radraid2/dongwoolee/Colon/data/frames_test.csv",
-    num_imgs=20000,
+    num_imgs=5000,
     pos_ratio=0.5,
-    min_skip_frames=5,
+    min_skip_frames=10,
     apply_skip=True,
     transform=test_transform
 )
@@ -63,16 +73,6 @@ for images, labels in train_dataloader:
 for images, labels in test_dataloader:
     print(images.shape, labels.shape)
     break
-
-selected_gpu = choose_gpu_with_cuda_visible_devices()
-if selected_gpu is not None:
-    import torch
-    # After setting CUDA_VISIBLE_DEVICES, torch will only see the specified GPU.
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Training will run on device: {device}")
-    print("Visible CUDA devices count:", torch.cuda.device_count())
-else:
-    print("No GPU selected.")
 
 ############## Model Parameters ######################
 vit_backbone = 'vit_base_patch16_224'
@@ -111,13 +111,14 @@ elif model_name == "ResNetClassifier":
     )
 
 model.to(device)
+print(f"Loaded Model: {type(model).__name__}")
 
 ############# Training Parameters #####################
-learning_rate = 0.001
+learning_rate = 0.00005
 epochs = 10
 loss_fn = BCEWithLogitsLoss()
 optimizer = AdamW(model.parameters(), lr=learning_rate)
-scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
+scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=learning_rate * 0.01)
 save_filepath = f"/radraid2/dongwoolee/Colon/results/{model_name}.pth"
 save_plotpath = f"/radraid2/dongwoolee/Colon/results/{model_name}.png"
 
@@ -146,19 +147,21 @@ training_parameters = {
     "epochs": epochs,
     "loss": type(loss_fn).__name__,
     "optimizer": type(optimizer).__name__,
-    "schedular": {"name": type(scheduler).__name__, "parameters": scheduler.__dict__},
+    "schedular": type(scheduler).__name__,
 }
 
 transform_parameters = {
-    "pad_method": train_transform.pad_method,
-    "max_size": train_transform.max_size,
-    "target_size": train_transform.target_size
+    "pad_method": train_transform.transforms[0].pad_method,
+    "max_size": train_transform.transforms[0].max_size,
+    "target_size": train_transform.transforms[0].target_size,
+    "mean": train_transform.transforms[2].mean,
+    "std": train_transform.transforms[2].std,
 }
 
 metadata = {
     "model_parameters": model_parameters,
     "training_parameters": training_parameters,
-    "transformation_parameters": transform_parameters
+    "transform_parameters": transform_parameters
 }
 
 checkpoint = {

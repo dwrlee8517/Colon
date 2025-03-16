@@ -1,4 +1,4 @@
-from utils.dataset import RealColonDataset
+from src.data.dataset import RealColonDataset
 import time
 import matplotlib.pyplot as plt
 

@@ -11,7 +11,6 @@ def register_model(name):
         MODEL_REGISTRY[name] = cls
         return cls
     return decorator
-
 class LinearClassifier(nn.Module):
     def __init__(self, input_dim, hidden_dims, activation='ReLU', batch_norm = True, dropout=0.2, num_classes=1):
         super().__init__()

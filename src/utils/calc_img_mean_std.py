@@ -1,11 +1,11 @@
 import torchvision.transforms as T
 from torchvision.transforms import ToTensor
 from torch.utils.data import DataLoader
-from utils.dataset import RealColonDataset
-from utils.transformations import CustomTransform
-from utils.helpers import choose_gpu_with_cuda_visible_devices, plot_and_save_training_validation_loss, set_random_seed
-from utils.models import ViTClassifier, ResNetClassifier
-from utils.trainer import ColonTrainer
+from src.data.dataset import RealColonDataset
+from src.utils.transformations import CustomTransform
+from src.utils.helpers import choose_gpu_with_cuda_visible_devices, plot_and_save_training_validation_loss, set_random_seed
+from src.models.models import ViTClassifier, ResNetClassifier
+from src.train.trainer import ColonTrainer
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import lr_scheduler, AdamW
 import gpustat

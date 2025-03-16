@@ -2,11 +2,11 @@ import torchvision.transforms as T
 import torch.nn.functional as F
 from torchvision.transforms import ToTensor
 from torch.utils.data import DataLoader
-from utils.dataset import RealColonDataset
-from utils.transformations import CustomTransform
-from utils.helpers import choose_gpu_with_cuda_visible_devices, plot_and_save_training_validation_loss, set_random_seed
-from utils.models import ViTClassifier, ResNetClassifier, MODEL_REGISTRY
-from utils.trainer import ColonTrainer
+from src.data.dataset import RealColonDataset
+from src.utils.transformations import CustomTransform
+from src.utils.helpers import choose_gpu_with_cuda_visible_devices, plot_and_save_training_validation_loss, set_random_seed
+from src.models.models import ViTClassifier, ResNetClassifier, MODEL_REGISTRY
+from src.train.trainer import ColonTrainer
 import torch
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import lr_scheduler, AdamW
@@ -94,7 +94,7 @@ plt.figure()
 plt.plot(fpr, tpr, label=f"ROC Curve (area = {auroc:0.2f})")
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
-plt.title('Receiver Operating Characteristic (ROC)')
+plt.title('Receiver Operating Characteristic (ViT Backbone)')
 plt.legend(loc="lower right")
 plt.savefig("/radraid2/dongwoolee/Colon/eval/ROC.png")
 
@@ -102,6 +102,6 @@ plt.figure()
 plt.plot(recall, precision, color='b', label=f'Precision-Recall curve (AP = {auprc:0.2f})')
 plt.xlabel('Recall')
 plt.ylabel('Precision')
-plt.title('Precision-Recall Curve')
+plt.title('Precision-Recall Curve (ViT Backbone)')
 plt.legend(loc="lower left")
 plt.savefig("/radraid2/dongwoolee/Colon/eval/PRC.png")

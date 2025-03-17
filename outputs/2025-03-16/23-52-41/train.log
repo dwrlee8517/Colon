@@ -1,0 +1,110 @@
+[2025-03-16 23:52:41,791][__main__][INFO] - Configuration:
+model:
+  _target_: src.models.model.ViTClassifier
+  backbone_name: vit_base_patch16_224
+  hidden_dims:
+  - 32
+  activation: ReLU
+  batch_norm: true
+  dropout: 0.2
+  num_classes: 1
+  freeze_backbone: true
+loss:
+  _target_: torch.nn.BCEWithLogitsLoss
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 0.001
+  weight_decay: 0.01
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  T_max: ${epochs}
+  eta_min: 1.0e-06
+dataset:
+  train:
+    _target_: src.utils.dataset.RealColonDataset
+    data_dir: /radraid/dongwoolee/real_colon_data/
+    frames_csv: /radraid2/dongwoolee/Colon/data/frames_train.csv
+    sampling: undersample
+    pos_ratio: 0.5
+    transform:
+      _target_: src.utils.transform.CustomTransform
+      pad_method: zeros
+      max_size:
+      - 1352
+      - 1080
+      target_size:
+      - 224
+      - 224
+      augment: true
+      normalize: true
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  valid:
+    _target_: src.utils.dataset.RealColonDataset
+    data_dir: /radraid/dongwoolee/real_colon_data/
+    frames_csv: /radraid2/dongwoolee/Colon/data/frames_val.csv
+    sampling: undersample
+    pos_ratio: 0.5
+    transform:
+      _target_: src.utils.transform.CustomTransform
+      pad_method: zeros
+      max_size:
+      - 1352
+      - 1080
+      target_size:
+      - 224
+      - 224
+      augment: false
+      normalize: true
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  test:
+    _target_: src.utils.dataset.RealColonDataset
+    data_dir: /radraid/dongwoolee/real_colon_data/
+    frames_csv: /radraid2/dongwoolee/Colon/data/frames_test.csv
+    sampling: null
+    pos_ratio: 0.5
+    transform:
+      _target_: src.utils.transform.CustomTransform
+      pad_method: zeros
+      max_size:
+      - 1352
+      - 1080
+      target_size:
+      - 224
+      - 224
+      augment: false
+      normalize: true
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+seed: 42
+epochs: 5
+batch_size: 64
+learning_rate: 0.0001
+wandb:
+  entity: rlee8517-ucla
+  project: Real Colon
+
+[2025-03-16 23:52:43,179][__main__][INFO] - Wandb run initialized.
+[2025-03-16 23:52:49,898][timm.models._builder][INFO] - Loading pretrained weights from Hugging Face hub (timm/vit_base_patch16_224.augreg2_in21k_ft_in1k)
+[2025-03-16 23:52:50,042][timm.models._hub][INFO] - [timm/vit_base_patch16_224.augreg2_in21k_ft_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+[2025-03-16 23:52:50,902][__main__][INFO] - Loaded Model: ViTClassifier
+[2025-03-16 23:53:11,174][__main__][INFO] - Train Dataset: 391410, Valid Dataset 77370

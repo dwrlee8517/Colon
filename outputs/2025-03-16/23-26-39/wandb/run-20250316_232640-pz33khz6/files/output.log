@@ -1,0 +1,34 @@
+[2025-03-16 23:26:41,504][__main__][INFO] - Wandb run initialized.
+[2025-03-16 23:26:48,253][timm.models._builder][INFO] - Loading pretrained weights from Hugging Face hub (timm/vit_base_patch16_224.augreg2_in21k_ft_in1k)
+[2025-03-16 23:26:48,457][timm.models._hub][INFO] - [timm/vit_base_patch16_224.augreg2_in21k_ft_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+[2025-03-16 23:26:49,394][__main__][INFO] - Loaded Model: ViTClassifier
+Error executing job with overrides: []
+Traceback (most recent call last):
+  File "/radraid2/dongwoolee/Colon/src/train/train.py", line 67, in main
+    for images, labels in train_dataloader:
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 708, in __next__
+    data = self._next_data()
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 1480, in _next_data
+    return self._process_data(data)
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 1505, in _process_data
+    data.reraise()
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/_utils.py", line 733, in reraise
+    raise exception
+TypeError: Caught TypeError in DataLoader worker process 0.
+Original Traceback (most recent call last):
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/utils/data/_utils/worker.py", line 349, in _worker_loop
+    data = fetcher.fetch(index)  # type: ignore[possibly-undefined]
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 55, in fetch
+    return self.collate_fn(data)
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/utils/data/_utils/collate.py", line 398, in default_collate
+    return collate(batch, collate_fn_map=default_collate_fn_map)
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/utils/data/_utils/collate.py", line 211, in collate
+    return [
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/utils/data/_utils/collate.py", line 212, in <listcomp>
+    collate(samples, collate_fn_map=collate_fn_map)
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/utils/data/_utils/collate.py", line 240, in collate
+    raise TypeError(default_collate_err_msg_format.format(elem_type))
+TypeError: default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'PIL.Image.Image'>
+
+
+Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.

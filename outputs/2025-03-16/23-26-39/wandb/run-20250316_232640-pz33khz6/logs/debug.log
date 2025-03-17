@@ -1,0 +1,23 @@
+2025-03-16 23:26:40,574 INFO    MainThread:2369824 [wandb_setup.py:_flush():67] Current SDK version is 0.19.8
+2025-03-16 23:26:40,574 INFO    MainThread:2369824 [wandb_setup.py:_flush():67] Configure stats pid to 2369824
+2025-03-16 23:26:40,574 INFO    MainThread:2369824 [wandb_setup.py:_flush():67] Loading settings from /home/dongwoolee/.config/wandb/settings
+2025-03-16 23:26:40,575 INFO    MainThread:2369824 [wandb_setup.py:_flush():67] Loading settings from /radraid2/dongwoolee/Colon/outputs/2025-03-16/23-26-39/wandb/settings
+2025-03-16 23:26:40,575 INFO    MainThread:2369824 [wandb_setup.py:_flush():67] Loading settings from environment variables
+2025-03-16 23:26:40,575 INFO    MainThread:2369824 [wandb_init.py:setup_run_log_directory():647] Logging user logs to /radraid2/dongwoolee/Colon/outputs/2025-03-16/23-26-39/wandb/run-20250316_232640-pz33khz6/logs/debug.log
+2025-03-16 23:26:40,575 INFO    MainThread:2369824 [wandb_init.py:setup_run_log_directory():648] Logging internal logs to /radraid2/dongwoolee/Colon/outputs/2025-03-16/23-26-39/wandb/run-20250316_232640-pz33khz6/logs/debug-internal.log
+2025-03-16 23:26:40,575 INFO    MainThread:2369824 [wandb_init.py:init():761] calling init triggers
+2025-03-16 23:26:40,575 INFO    MainThread:2369824 [wandb_init.py:init():766] wandb.init called with sweep_config: {}
+config: {'model': {'_target_': 'src.models.model.ViTClassifier', 'backbone_name': 'vit_base_patch16_224', 'hidden_dims': [32], 'activation': 'ReLU', 'batch_norm': True, 'dropout': 0.2, 'num_classes': 1, 'freeze_backbone': True}, 'loss': {'_target_': 'torch.nn.BCEWithLogitsLoss'}, 'optimizer': {'_target_': 'torch.optim.AdamW', 'lr': 0.001, 'weight_decay': 0.01}, 'scheduler': {'_target_': 'torch.optim.lr_scheduler.CosineAnnealingLR', 'T_max': 30, 'eta_min': 1e-06}, 'dataset': {'train': {'_target_': 'src.utils.dataset.RealColonDataset', 'data_dir': '/radraid/dongwoolee/real_colon_data/', 'frames_csv': '/radraid2/dongwoolee/Colon/data/frames_train.csv', 'sampling': 'undersample', 'pos_ratio': 0.5, 'transform': {'_target_': 'src.utils.transform.CustomTransform', 'pad_method': 'zeros', 'max_size': [1352, 1080], 'target_size': [224, 224], 'augment': True}}, 'valid': {'_target_': 'src.utils.dataset.RealColonDataset', 'data_dir': '/radraid/dongwoolee/real_colon_data/', 'frames_csv': '/radraid2/dongwoolee/Colon/data/frames_val.csv', 'sampling': None, 'pos_ratio': 0.5, 'transform': {'_target_': 'src.utils.transform.CustomTransform', 'pad_method': 'zeros', 'max_size': [1352, 1080], 'target_size': [224, 224], 'augment': False}}, 'test': {'_target_': 'src.utils.dataset.RealColonDataset', 'data_dir': '/radraid/dongwoolee/real_colon_data/', 'frames_csv': '/radraid2/dongwoolee/Colon/data/frames_test.csv', 'sampling': None, 'pos_ratio': 0.5, 'transform': {'_target_': 'src.utils.transform.CustomTransform', 'pad_method': 'zeros', 'max_size': [1352, 1080], 'target_size': [224, 224], 'augment': False}}}, 'seed': 42, 'epochs': 30, 'batch_size': 64, 'learning_rate': 0.0001, 'wandb': {'entity': 'rlee8517-ucla', 'project': 'Real Colon'}, '_wandb': {}}
+2025-03-16 23:26:40,575 INFO    MainThread:2369824 [wandb_init.py:init():784] starting backend
+2025-03-16 23:26:40,575 INFO    MainThread:2369824 [wandb_init.py:init():788] sending inform_init request
+2025-03-16 23:26:40,588 INFO    MainThread:2369824 [backend.py:_multiprocessing_setup():101] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2025-03-16 23:26:40,588 INFO    MainThread:2369824 [wandb_init.py:init():798] backend started and connected
+2025-03-16 23:26:40,593 INFO    MainThread:2369824 [wandb_init.py:init():891] updated telemetry
+2025-03-16 23:26:40,608 INFO    MainThread:2369824 [wandb_init.py:init():915] communicating run to backend with 90.0 second timeout
+2025-03-16 23:26:41,110 INFO    MainThread:2369824 [wandb_init.py:init():990] starting run threads in backend
+2025-03-16 23:26:41,492 INFO    MainThread:2369824 [wandb_run.py:_console_start():2375] atexit reg
+2025-03-16 23:26:41,493 INFO    MainThread:2369824 [wandb_run.py:_redirect():2227] redirect: wrap_raw
+2025-03-16 23:26:41,493 INFO    MainThread:2369824 [wandb_run.py:_redirect():2292] Wrapping output streams.
+2025-03-16 23:26:41,493 INFO    MainThread:2369824 [wandb_run.py:_redirect():2315] Redirects installed.
+2025-03-16 23:26:41,504 INFO    MainThread:2369824 [wandb_init.py:init():1032] run started, returning control to user process
+2025-03-16 23:27:13,606 INFO    MsgRouterThr:2369824 [mailbox.py:close():129] Closing mailbox, abandoning 1 handles.

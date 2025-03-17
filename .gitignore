@@ -1,4 +1,4 @@
-data/img*
+data/archive
 results/*.pth
 __pycache__/
 *.pyc

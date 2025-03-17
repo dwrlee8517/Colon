@@ -1,0 +1,6 @@
+[2025-03-17 00:20:42,562][__main__][INFO] - Wandb run initialized.
+[2025-03-17 00:20:45,743][timm.models._builder][INFO] - Loading pretrained weights from Hugging Face hub (timm/resnet50.a1_in1k)
+[2025-03-17 00:20:45,881][timm.models._hub][INFO] - [timm/resnet50.a1_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+[2025-03-17 00:20:46,621][__main__][INFO] - Loaded Model: ResNetClassifier
+[2025-03-17 00:21:08,734][__main__][INFO] - Train Dataset: 391410, Valid Dataset: 77370
+Training:  89%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▊                              | 5413/6116 [09:05<01:10, 10.01it/s]

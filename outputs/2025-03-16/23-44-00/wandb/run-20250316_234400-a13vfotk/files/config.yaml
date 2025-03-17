@@ -1,0 +1,144 @@
+_wandb:
+    value:
+        cli_version: 0.19.8
+        m: []
+        python_version: 3.10.0
+        t:
+            "1":
+                - 1
+                - 5
+                - 50
+                - 53
+                - 55
+            "2":
+                - 1
+                - 5
+                - 41
+                - 49
+                - 50
+                - 53
+                - 55
+                - 63
+            "3":
+                - 16
+                - 23
+                - 55
+            "4": 3.10.0
+            "5": 0.19.8
+            "8":
+                - 5
+            "12": 0.19.8
+            "13": linux-x86_64
+batch_size:
+    value: 64
+dataset:
+    value:
+        test:
+            _target_: src.utils.dataset.RealColonDataset
+            data_dir: /radraid/dongwoolee/real_colon_data/
+            frames_csv: /radraid2/dongwoolee/Colon/data/frames_test.csv
+            pos_ratio: 0.5
+            sampling: null
+            transform:
+                _target_: src.utils.transform.CustomTransform
+                augment: false
+                max_size:
+                    - 1352
+                    - 1080
+                mean:
+                    - 0.485
+                    - 0.456
+                    - 0.406
+                normalize: true
+                pad_method: zeros
+                std:
+                    - 0.229
+                    - 0.224
+                    - 0.225
+                target_size:
+                    - 224
+                    - 224
+        train:
+            _target_: src.utils.dataset.RealColonDataset
+            data_dir: /radraid/dongwoolee/real_colon_data/
+            frames_csv: /radraid2/dongwoolee/Colon/data/frames_train.csv
+            pos_ratio: 0.5
+            sampling: undersample
+            transform:
+                _target_: src.utils.transform.CustomTransform
+                augment: true
+                max_size:
+                    - 1352
+                    - 1080
+                mean:
+                    - 0.485
+                    - 0.456
+                    - 0.406
+                normalize: true
+                pad_method: zeros
+                std:
+                    - 0.229
+                    - 0.224
+                    - 0.225
+                target_size:
+                    - 224
+                    - 224
+        valid:
+            _target_: src.utils.dataset.RealColonDataset
+            data_dir: /radraid/dongwoolee/real_colon_data/
+            frames_csv: /radraid2/dongwoolee/Colon/data/frames_val.csv
+            pos_ratio: 0.5
+            sampling: undersample
+            transform:
+                _target_: src.utils.transform.CustomTransform
+                augment: false
+                max_size:
+                    - 1352
+                    - 1080
+                mean:
+                    - 0.485
+                    - 0.456
+                    - 0.406
+                normalize: true
+                pad_method: zeros
+                std:
+                    - 0.229
+                    - 0.224
+                    - 0.225
+                target_size:
+                    - 224
+                    - 224
+epochs:
+    value: 30
+learning_rate:
+    value: 0.0001
+loss:
+    value:
+        _target_: torch.nn.BCEWithLogitsLoss
+model:
+    value:
+        _target_: src.models.model.ViTClassifier
+        activation: ReLU
+        backbone_name: vit_base_patch16_224
+        batch_norm: true
+        dropout: 0.2
+        freeze_backbone: true
+        hidden_dims:
+            - 32
+        num_classes: 1
+optimizer:
+    value:
+        _target_: torch.optim.AdamW
+        lr: 0.001
+        weight_decay: 0.01
+scheduler:
+    value:
+        _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+        T_max: 30
+        eta_min: 1e-06
+seed:
+    value: 42
+wandb:
+    value:
+        entity: rlee8517-ucla
+        project: Real Colon

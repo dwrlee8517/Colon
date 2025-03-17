@@ -1,0 +1,15 @@
+{"time":"2025-03-16T23:36:33.451240356-07:00","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"/radraid2/dongwoolee/Colon/outputs/2025-03-16/23-36-32/wandb/run-20250316_233633-y9jncgz7/logs/debug-core.log"}
+{"time":"2025-03-16T23:36:33.682190131-07:00","level":"INFO","msg":"created new stream","id":"y9jncgz7"}
+{"time":"2025-03-16T23:36:33.682304139-07:00","level":"INFO","msg":"stream: started","id":"y9jncgz7"}
+{"time":"2025-03-16T23:36:33.682324534-07:00","level":"INFO","msg":"writer: Do: started","stream_id":"y9jncgz7"}
+{"time":"2025-03-16T23:36:33.682416476-07:00","level":"INFO","msg":"handler: started","stream_id":"y9jncgz7"}
+{"time":"2025-03-16T23:36:33.682346709-07:00","level":"INFO","msg":"sender: started","stream_id":"y9jncgz7"}
+{"time":"2025-03-16T23:36:33.940284995-07:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-03-16T23:40:31.322474304-07:00","level":"INFO","msg":"stream: closing","id":"y9jncgz7"}
+{"time":"2025-03-16T23:40:31.322726348-07:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-03-16T23:40:31.324367457-07:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-03-16T23:40:31.771788935-07:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-03-16T23:40:31.895832014-07:00","level":"INFO","msg":"handler: closed","stream_id":"y9jncgz7"}
+{"time":"2025-03-16T23:40:31.895885148-07:00","level":"INFO","msg":"writer: Close: closed","stream_id":"y9jncgz7"}
+{"time":"2025-03-16T23:40:31.895929727-07:00","level":"INFO","msg":"sender: closed","stream_id":"y9jncgz7"}
+{"time":"2025-03-16T23:40:31.897990582-07:00","level":"INFO","msg":"stream: closed","id":"y9jncgz7"}

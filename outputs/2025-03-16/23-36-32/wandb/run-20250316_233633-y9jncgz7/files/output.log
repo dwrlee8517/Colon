@@ -1,0 +1,47 @@
+[2025-03-16 23:36:34,306][__main__][INFO] - Wandb run initialized.
+[2025-03-16 23:36:40,599][timm.models._builder][INFO] - Loading pretrained weights from Hugging Face hub (timm/vit_base_patch16_224.augreg2_in21k_ft_in1k)
+[2025-03-16 23:36:40,732][timm.models._hub][INFO] - [timm/vit_base_patch16_224.augreg2_in21k_ft_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+[2025-03-16 23:36:41,591][__main__][INFO] - Loaded Model: ViTClassifier
+Training:  11%|█████████████████▉                                                                                                                                                      | 651/6116 [03:21<28:08,  3.24it/s]
+Traceback (most recent call last):
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/radraid2/dongwoolee/Colon/src/train/train.py", line 111, in <module>
+    main()
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/hydra/main.py", line 94, in decorated_main
+    _run_hydra(
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/hydra/_internal/utils.py", line 394, in _run_hydra
+    _run_app(
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/hydra/_internal/utils.py", line 457, in _run_app
+    run_and_report(
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/hydra/_internal/utils.py", line 220, in run_and_report
+    return func()
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/hydra/_internal/utils.py", line 458, in <lambda>
+    lambda: hydra.run(
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/hydra/_internal/hydra.py", line 119, in run
+    ret = run_job(
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/hydra/core/utils.py", line 186, in run_job
+    ret.return_value = task_function(task_cfg)
+  File "/radraid2/dongwoolee/Colon/src/train/train.py", line 76, in main
+    model, optimizer, train_loss_history, test_loss_history = trainer.train()
+  File "/radraid2/dongwoolee/Colon/src/train/trainer.py", line 47, in train
+    train_loss = self.train_epoch()
+  File "/radraid2/dongwoolee/Colon/src/train/trainer.py", line 26, in train_epoch
+    for batch in tqdm(self.train_loader, desc="Training"):
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/tqdm/std.py", line 1181, in __iter__
+    for obj in iterable:
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 708, in __next__
+    data = self._next_data()
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 1458, in _next_data
+    idx, data = self._get_data()
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 1410, in _get_data
+    success, data = self._try_get_data()
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 1251, in _try_get_data
+    data = self._data_queue.get(timeout=timeout)
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/queue.py", line 180, in get
+    self.not_empty.wait(remaining)
+  File "/radraid2/dongwoolee/miniconda3/envs/colon_env/lib/python3.10/threading.py", line 324, in wait
+    gotit = waiter.acquire(True, timeout)
+KeyboardInterrupt

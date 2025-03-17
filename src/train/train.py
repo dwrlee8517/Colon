@@ -1,175 +1,112 @@
-import torchvision.transforms as T
-from torchvision.transforms import ToTensor
-from torch.utils.data import DataLoader
-from src.data.dataset import RealColonDataset
-from utils.transformations import CustomTransform
-from utils.helpers import choose_gpu_with_cuda_visible_devices, plot_and_save_training_validation_loss, set_random_seed
-from src.models.models import ViTClassifier, ResNetClassifier
+import os
+import time
+import hydra
+import hydra.utils
+from omegaconf import DictConfig, OmegaConf
+import torch
+from torch.nn import Module
+from torch.utils.data import DataLoader, Dataset
+from torch.optim import Optimizer
+from torch.optim.lr_scheduler import LRScheduler
+
 from src.train.trainer import ColonTrainer
-from torch.nn import BCEWithLogitsLoss
-from torch.optim import lr_scheduler, AdamW
-import gpustat
+from src.utils.dataset import RealColonDataset
+from src.utils.helpers import choose_gpu_with_cuda_visible_devices, plot_and_save_training_validation_loss, set_random_seed
 
-# Set a global random seed here.
-GLOBAL_SEED = 42
-set_random_seed(GLOBAL_SEED)
+import wandb
+import logging
+import matplotlib.pyplot as plt
 
-selected_gpu = choose_gpu_with_cuda_visible_devices()
-if selected_gpu is not None:
-    import torch
-    # After setting CUDA_VISIBLE_DEVICES, torch will only see the specified GPU.
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Training will run on device: {device}")
-    print("Visible CUDA devices count:", torch.cuda.device_count())
-else:
-    print("No GPU selected.")
-
-# Create a composed transform that uses your custom transform and converts the image to a tensor.
-train_transform = T.Compose([
-    CustomTransform(pad_method="zeros", max_size=(1352,1080), target_size=(224,224), augment=True),
-    ToTensor(),
-    T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # ImageNet
-    #T.Normalize(mean=[0.568, 0.329, 0.252], std=[0.264, 0.202, 0.161]) # train_dataset when random seed = 42
-])
-
-test_transform = T.Compose([
-    CustomTransform(pad_method="zeros", max_size=(1352,1080), target_size=(224,224), augment=False),
-    ToTensor(),
-    T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    #T.Normalize(mean=[0.568, 0.329, 0.252], std=[0.264, 0.202, 0.161])
-])
-
-print("Creating Train Dataset")
-train_dataset = RealColonDataset(
-    data_dir="/radraid/dongwoolee/real_colon_data",
-    frames_csv="/radraid2/dongwoolee/Colon/data/frames_train.csv",
-    num_imgs=20000,
-    pos_ratio=0.5,
-    min_skip_frames=10,
-    apply_skip=True,
-    transform=train_transform
+# Set up Python logging
+logging.basicConfig(
+    level=logging.DEBUG,  # Set to INFO or WARNING for less verbosity in production
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler("training.log")
+    ]
 )
-print("Done.")
+logger = logging.getLogger(__name__)
 
-print("Creating Test Datset")
-test_dataset = RealColonDataset(
-    data_dir="/radraid/dongwoolee/real_colon_data",
-    frames_csv="/radraid2/dongwoolee/Colon/data/frames_test.csv",
-    num_imgs=5000,
-    pos_ratio=0.5,
-    min_skip_frames=10,
-    apply_skip=True,
-    transform=test_transform
-)
-print("Done.")
+@hydra.main(config_path="/radraid2/dongwoolee/Colon/configs", config_name="config1")
+def main(cfg: DictConfig):
 
-train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True, num_workers=8, pin_memory=True)
-test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False, num_workers=8, pin_memory=True)
+    output_dir = os.getcwd() # Hydra's output directory
+    
+    # Print and log the configuration
+    config_str = OmegaConf.to_yaml(cfg)
+    print(config_str)
+    logger.info("Configuration:\n%s", config_str)
 
-for images, labels in train_dataloader:
-    print(images.shape, labels.shape)
-    break
+    # Initialize wandb with the full configuration
+    wandb.init(entity=cfg.wandb.entity, project=cfg.wandb.project, config=OmegaConf.to_container(cfg, resolve=True))
+    logger.info("Wandb run initialized.")
 
-for images, labels in test_dataloader:
-    print(images.shape, labels.shape)
-    break
+    device = torch.device('cuda')
+    set_random_seed(cfg.seed)
 
-############## Model Parameters ######################
-vit_backbone = 'vit_base_patch16_224'
-resnet_backbone = 'resnet50'
+    # Instantiate model, optimizer, and scheduler
+    model:Module = hydra.utils.instantiate(cfg.model)
+    model.to(device)
+    model_name = type(model).__name__
+    logger.info("Loaded Model: %s", model_name)
 
-hidden_dims = [32]
-dropout_p = 0.2
-activation = "ReLU"
-batch_norm_bool = True
-num_classes = 1
-freeze_backbone = True
+    optimizer:Optimizer = hydra.utils.instantiate(cfg.optimizer, params=model.parameters())
+    scheduler:LRScheduler = hydra.utils.instantiate(cfg.scheduler, optimizer=optimizer)
+    loss_fn:Module = hydra.utils.instantiate(cfg.loss)
 
-model_name = "ViTClassifier"
+    train_dataset:Dataset = hydra.utils.instantiate(cfg.dataset.train)
+    valid_dataset:Dataset = hydra.utils.instantiate(cfg.dataset.valid)
+    test_dataset:Dataset  = hydra.utils.instantiate(cfg.dataset.test)
+    logger.info("Train Dataset: %s, Valid Dataset: %s", len(train_dataset), len(valid_dataset))
 
-print(f"Loading Model {model_name}")
-if model_name == "ViTClassifier":
-    backbone_name = vit_backbone
-    model = ViTClassifier(backbone_name=backbone_name, 
-    hidden_dims=hidden_dims, 
-    activation=activation, 
-    batch_norm=batch_norm_bool, 
-    dropout=dropout_p, 
-    num_classes=num_classes,
-    freeze_backbone=freeze_backbone
-    )
+    train_dataloader = DataLoader(train_dataset, batch_size=cfg.batch_size, shuffle=True, num_workers=16, pin_memory=True)
+    valid_dataloader = DataLoader(valid_dataset, batch_size=cfg.batch_size, shuffle=False, num_workers=16, pin_memory=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=cfg.batch_size, shuffle=False, num_workers=16, pin_memory=True)
 
-elif model_name == "ResNetClassifier":
-    backbone_name = resnet_backbone
-    model = ResNetClassifier(backbone_name=backbone_name, 
-    hidden_dims=hidden_dims, 
-    activation=activation, 
-    batch_norm=batch_norm_bool, 
-    dropout=dropout_p, 
-    num_classes=num_classes,
-    freeze_backbone=freeze_backbone
-    )
+    # Print shapes of first batch for debugging
+    for images, labels in train_dataloader:
+        logger.debug("Train batch - images: %s, labels: %s", images.shape, labels.shape)
+        break
 
-model.to(device)
-print(f"Loaded Model: {type(model).__name__}")
+    for images, labels in valid_dataloader:
+        logger.debug("Validation batch - images: %s, labels: %s", images.shape, labels.shape)
+        break
 
-############# Training Parameters #####################
-learning_rate = 0.00005
-epochs = 10
-loss_fn = BCEWithLogitsLoss()
-optimizer = AdamW(model.parameters(), lr=learning_rate)
-scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=learning_rate * 0.01)
-save_filepath = f"/radraid2/dongwoolee/Colon/results/{model_name}.pth"
-save_plotpath = f"/radraid2/dongwoolee/Colon/results/{model_name}.png"
+    trainer = ColonTrainer(model, optimizer, scheduler, train_dataloader, valid_dataloader, device, cfg.epochs, loss_fn)
+    model, optimizer, train_loss_history, test_loss_history = trainer.train()
 
-############ Train and save results ##################
-trainer = ColonTrainer(model, optimizer, scheduler, train_dataloader, test_dataloader, device, epochs, loss_fn)
-model, optimizer, train_loss_history, test_loss_history = trainer.train()
+    # Save results in Hydra's output directory
+    run_id = time.strftime("%Y%m%d-%H%M%S")
+    save_filepath = os.path.join(output_dir, f"{model_name}_{run_id}.pth")
+    save_plotpath = os.path.join(output_dir, f"{model_name}_{run_id}.png")
+    config_save_path = os.path.join(output_dir, f"{model_name}_{run_id}_config.yaml")
+    
+    # Save and log the loss plot
+    logger.info("Saving loss plot...")
+    plot_and_save_training_validation_loss(train_loss_history, test_loss_history, save_plotpath)
+    logger.info("Loss plot saved to %s", save_plotpath)
 
-print("Saving Plot...")
-plot_and_save_training_validation_loss(train_loss_history, test_loss_history, save_plotpath)
-print(f"Loss plot is saved to {save_plotpath}")
+    # Log loss plot to wandb as an image artifact
+    wandb.log({"loss_plot": wandb.Image(save_plotpath)})
 
-print("Saving Model...")
-model_parameters = {
-    "model_name": model_name,
-    "backbone_name": backbone_name,
-    "hidden_dims": hidden_dims,
-    "dropout": dropout_p,
-    "activation": activation,
-    "batch_norm": batch_norm_bool,
-    "num_classes": num_classes,
-    "freeze_backbone": freeze_backbone
-}
+    # Save model checkpoint locally
+    torch.save(model.state_dict(), save_filepath)
+    logger.info("Model checkpoint saved to %s", save_filepath)
 
-training_parameters = {
-    "learning_rate": learning_rate,
-    "epochs": epochs,
-    "loss": type(loss_fn).__name__,
-    "optimizer": type(optimizer).__name__,
-    "schedular": type(scheduler).__name__,
-}
+    # Log model checkpoint as a wandb artifact
+    model_artifact = wandb.Artifact(model_name, type="model")
+    model_artifact.add_file(save_filepath)
+    wandb.log_artifact(model_artifact)
 
-transform_parameters = {
-    "pad_method": train_transform.transforms[0].pad_method,
-    "max_size": train_transform.transforms[0].max_size,
-    "target_size": train_transform.transforms[0].target_size,
-    "mean": train_transform.transforms[2].mean,
-    "std": train_transform.transforms[2].std,
-}
+    # Save the current configuration alongside the checkpoint
+    OmegaConf.save(config=cfg, f=config_save_path)
+    logger.info("Configuration saved to %s", config_save_path)
+    config_artifact = wandb.Artifact(f"{model_name}_config", type="config")
+    config_artifact.add_file(config_save_path)
+    wandb.log_artifact(config_artifact)
 
-metadata = {
-    "model_parameters": model_parameters,
-    "training_parameters": training_parameters,
-    "transform_parameters": transform_parameters
-}
-
-checkpoint = {
-    "model_state_dict": model.state_dict(),
-    "optimizer_state_dict": optimizer.state_dict(),
-    "metadata": metadata,
-    "train_loss": train_loss_history,
-    "test_loss": test_loss_history,
-}
-torch.save(checkpoint, save_filepath)
-print(f"Model is saved to {save_filepath}")
+    wandb.finish()
+    logger.info("Training finished and wandb run closed.")
+if __name__=="__main__":
+    main()

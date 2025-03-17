@@ -1,0 +1,8 @@
+_target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+mode: "min"               # "min" if you're monitoring validation loss
+factor: 0.1               # Factor by which the learning rate will be reduced
+patience: 5               # Number of epochs with no improvement after which learning rate will be reduced
+threshold: 1e-4           # Threshold for measuring the new optimum
+threshold_mode: "rel"     # Relative threshold mode
+min_lr: 1e-6              # Lower bound on the learning rate
+verbose: true 
